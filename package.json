@@ -17,7 +17,8 @@
     "postinstall": "node scripts/install.js",
     "release:patch": "npm version patch && git push origin main --tags && npm publish",
     "release:minor": "npm version minor && git push origin main --tags && npm publish",
-    "release:major": "npm version major && git push origin main --tags && npm publish"
+    "release:major": "npm version major && git push origin main --tags && npm publish",
+    "prepare": "husky"
   },
   "keywords": [
     "wechat",
@@ -39,5 +40,10 @@
   },
   "engines": {
     "node": ">=14.0.0"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^21.1.0",
+    "@commitlint/config-conventional": "^21.1.0",
+    "husky": "^9.1.7"
   }
 }
