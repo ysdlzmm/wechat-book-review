@@ -90,6 +90,12 @@ function main() {
     return;
   }
 
+  if (command === '--version' || command === '-v') {
+    const pkg = require('../package.json');
+    console.log(`wechat-media-writer v${pkg.version}`);
+    return;
+  }
+
   const python = checkPython();
   checkDependencies();
 
