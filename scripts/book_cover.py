@@ -72,7 +72,8 @@ def fetch_book_cover_douban(book_title, author=""):
     ctx.verify_mode = ssl.CERT_NONE
 
     query = f"{book_title} {author}".strip()
-    url = f"https://search.douban.com/book/subject_search?search_text={urllib.parse.quote(query)}"
+    encoded_query = urllib.parse.quote(query)
+    url = f"https://search.douban.com/book/subject_search?search_text={encoded_query}"
     req = urllib.request.Request(
         url,
         headers={
@@ -81,9 +82,8 @@ def fetch_book_cover_douban(book_title, author=""):
     )
 
     try:
-        html = (
-            urllib.request.urlopen(req, context=ctx, timeout=15).read().decode("utf-8")
-        )
+        raw = urllib.request.urlopen(req, context=ctx, timeout=15).read()
+        html = raw.decode("utf-8", errors="replace")
         match = re.search(
             r'<img[^>]+src="(https://img[0-9]+\.doubanio\.com/view/subject/[^"]+)"',
             html,
@@ -97,7 +97,7 @@ def fetch_book_cover_douban(book_title, author=""):
 
 
 def fetch_book_cover(book_title, author="", isbn=""):
-    """按优先级尝试获取书籍封面"""
+    """按优先级尝试获取书籍封面，最后回退到占位图"""
     cover_url = None
 
     print(f"尝试从 Google Books 获取《{book_title}》封面...")
@@ -112,10 +112,10 @@ def fetch_book_cover(book_title, author="", isbn=""):
         cover_url = fetch_book_cover_douban(book_title, author)
 
     if not cover_url:
-        print("⚠️ 无法自动获取书籍封面，请手动提供封面图")
-        return None
+        print("⚠️ 三个数据源均未返回封面，使用占位图占位")
+        cover_url = "https://images.pexels.com/photos/159711/books-bookstore-book-reading-159711.jpeg?auto=compress&cs=tinysrgb&w=600"
 
-    print(f"✓ 成功获取封面: {cover_url}")
+    print(f"✓ 封面URL: {cover_url}")
     return cover_url
 
 
