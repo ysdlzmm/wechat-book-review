@@ -1,26 +1,19 @@
 #!/usr/bin/env python3
 """
-微信公众号通用发布脚本
-支持：获取token、上传封面、上传内容图片、创建草稿
-用法：
-  python3 wechat_publish.py --title "标题" --author "作者" --digest "摘要" \
-    --content-html "<section>...</section>" --cover-image /path/to/cover.jpg
-  或从文件读取：
-  python3 wechat_publish.py --title "标题" --content-file content.html --cover-image cover.jpg
+微信公众号 API 封装模块
+支持：获取token、上传图片、创建草稿
 """
 
-import argparse
+import http.client
 import json
+import mimetypes
 import os
+import socket
+import ssl
+import subprocess
 import sys
 import time
-import ssl
-import socket
-import subprocess
-import http.client
-import mimetypes
 import uuid
-import tempfile
 
 CONFIG_PATH = os.path.expanduser("~/.wechat/config.json")
 TOKEN_CACHE_PATH = os.path.expanduser("~/.wechat/token_cache.json")
@@ -189,52 +182,6 @@ def upload_content_image(token, image_path):
     return result["url"]
 
 
-def upload_all_images(token, image_dir, cover_name="cover_900x500.jpg"):
-    """批量上传图片目录中的所有图片"""
-    result = {"cover_mid": "", "book_cover": "", "urls": {}}
-
-    # 上传公众号封面图（900x500）
-    cover_path = os.path.join(image_dir, cover_name)
-    if os.path.exists(cover_path):
-        result["cover_mid"] = upload_cover(token, cover_path)
-    else:
-        print(f"警告: 封面图不存在 {cover_path}", file=sys.stderr)
-
-    # 上传内容图
-    print("\n--- 上传内容图片 ---")
-    for fname in sorted(os.listdir(image_dir)):
-        if fname == cover_name or not fname.endswith((".jpg", ".jpeg", ".png")):
-            continue
-        fpath = os.path.join(image_dir, fname)
-        name = os.path.splitext(fname)[0]
-        url = upload_content_image(token, fpath)
-        if url:
-            result["urls"][name] = url
-
-    # 识别书籍封面图（如果有 book_cover.jpg 或类似命名）
-    book_cover_candidates = [
-        "book_cover.jpg",
-        "book_cover.jpeg",
-        "book_cover.png",
-        "book.jpg",
-    ]
-    for candidate in book_cover_candidates:
-        candidate_path = os.path.join(image_dir, candidate)
-        if os.path.exists(candidate_path):
-            url = upload_content_image(token, candidate_path)
-            if url:
-                result["book_cover"] = url
-                print(f"  ✓ 书籍封面图: {url}")
-            break
-
-    # 保存结果
-    result_path = os.path.join(image_dir, "upload_result.json")
-    with open(result_path, "w") as f:
-        json.dump(result, f, indent=2)
-    print(f"\n已保存 {result_path}")
-    return result
-
-
 def create_draft(token, title, author, digest, content_html, thumb_media_id):
     """创建草稿"""
     article = {
@@ -265,57 +212,5 @@ def create_draft(token, title, author, digest, content_html, thumb_media_id):
     return result["media_id"]
 
 
-def main():
-    parser = argparse.ArgumentParser(description="微信公众号草稿箱发布工具")
-    parser.add_argument("--title", required=True, help="文章标题")
-    parser.add_argument("--author", default="读书笔记", help="作者名称")
-    parser.add_argument("--digest", default="", help="文章摘要")
-    parser.add_argument("--content-html", default="", help="HTML 格式文章正文")
-    parser.add_argument("--content-file", default="", help="从文件读取 HTML 内容")
-    parser.add_argument("--cover-image", default="", help="封面图路径")
-    parser.add_argument("--upload-dir", default="", help="批量上传目录中的图片")
-    args = parser.parse_args()
-
-    if args.content_file:
-        with open(args.content_file, "r", encoding="utf-8") as f:
-            args.content_html = f.read()
-    if not args.content_html and not args.upload_dir:
-        print(
-            "错误: 必须提供 --content-html / --content-file 或 --upload-dir",
-            file=sys.stderr,
-        )
-        sys.exit(1)
-
-    config = load_config()
-    token = get_access_token(config)
-    print(f"Token 已获取: {token[:20]}...")
-
-    if args.upload_dir:
-        result = upload_all_images(token, args.upload_dir)
-        print(f"\n封面 media_id: {result['cover_mid']}")
-        print(f"内容图片: {len(result['urls'])} 张")
-        return
-
-    # 单篇发布模式
-    print("\n" + "=" * 50)
-    print("微信公众号草稿箱发布")
-    print("=" * 50)
-
-    cover_mid = upload_cover(token, args.cover_image) if args.cover_image else ""
-    if not cover_mid:
-        print("错误: 需要封面图 media_id", file=sys.stderr)
-        sys.exit(1)
-
-    draft_id = create_draft(
-        token, args.title, args.author, args.digest, args.content_html, cover_mid
-    )
-
-    print("\n发布成功!")
-    print(f"标题:   {args.title}")
-    print(f"作者:   {args.author}")
-    print(f"草稿ID: {draft_id}")
-    print(f"\nhttps://mp.weixin.qq.com")
-
-
 if __name__ == "__main__":
-    main()
+    print("微信API模块 - 请作为模块导入使用")
