@@ -1,0 +1,40 @@
+{
+  "name": "wechat-media-writer",
+  "version": "2.2.0",
+  "description": "微信公众号书评、影评文章自动生成与发布 - Skill",
+  "main": "index.js",
+  "bin": {
+    "wechat-media-writer": "./bin/cli.js"
+  },
+  "files": [
+    "bin/",
+    "scripts/",
+    "references/",
+    "SKILL.md",
+    "README.md"
+  ],
+  "scripts": {
+    "postinstall": "node scripts/install.js"
+  },
+  "keywords": [
+    "wechat",
+    "weixin",
+    "book",
+    "movie",
+    "review",
+    "publish",
+    "skill",
+    "公众号",
+    "书评",
+    "影评"
+  ],
+  "author": "",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/wechat-skill.git"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
