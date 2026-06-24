@@ -9,6 +9,7 @@ import os
 import re
 import ssl
 import urllib.request
+import urllib.parse
 
 
 def fetch_book_cover_google(book_title, author=""):
@@ -21,7 +22,7 @@ def fetch_book_cover_google(book_title, author=""):
     if author:
         query += f"+inauthor:{author}"
 
-    url = f"https://www.googleapis.com/books/v1/volumes?q={query}&maxResults=1"
+    url = f"https://www.googleapis.com/books/v1/volumes?q={urllib.parse.quote(query)}&maxResults=1"
     req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
 
     try:
@@ -71,7 +72,7 @@ def fetch_book_cover_douban(book_title, author=""):
     ctx.verify_mode = ssl.CERT_NONE
 
     query = f"{book_title} {author}".strip()
-    url = f"https://search.douban.com/book/subject_search?search_text={query}"
+    url = f"https://search.douban.com/book/subject_search?search_text={urllib.parse.quote(query)}"
     req = urllib.request.Request(
         url,
         headers={
