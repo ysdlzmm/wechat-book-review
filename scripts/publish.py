@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 微信公众号读书拆解发布脚本
-完整流程：准备主题贴图 -> 裁剪公众号封面 -> 上传图片 -> 创建草稿
+完整流程：下载主题贴图 -> 挑选最精美图作封面 -> 裁剪 900x500 -> 上传 -> 草稿
 """
 
 import argparse
@@ -12,8 +12,7 @@ import sys
 # 添加当前目录到模块搜索路径
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from book_cover import download_cover_900x500
-from image_downloader import download_theme_images
+from image_downloader import download_theme_images, pick_best_cover
 from wechat_api import (
     load_config,
     get_access_token,
@@ -23,10 +22,12 @@ from wechat_api import (
 )
 
 
-def ensure_theme_images(cover_dir, theme="abstract", count=6):
+def ensure_theme_images(cover_dir, theme="books", count=6):
     """确保主题插图存在，缺失则自动下载
 
     默认 6 张：用于正文穿插（5 张）+ 结尾页（1 张）= 6 张
+    下载后会自动按美学评分降序重命名为 img_1.jpg ~ img_6.jpg
+    （img_1 即为美学评分最高的一张，会被选为公众号封面）
     """
     os.makedirs(cover_dir, exist_ok=True)
     existing = [
@@ -42,19 +43,39 @@ def ensure_theme_images(cover_dir, theme="abstract", count=6):
     download_theme_images(theme, cover_dir, count)
 
 
-def ensure_cover_image(cover_dir, theme="abstract", seed=0):
-    """确保公众号封面（900x500）存在，缺失则下载一张对应主题的精确尺寸封面
+def ensure_cover_image(cover_dir):
+    """从已下载的主题图中美学评分最高的裁剪为 900x500 公众号封面
 
-    注意：不再从主题插图裁剪（裁剪可能损失画面重要内容），
-    而是从 Pexels 直接请求 900x500 精确尺寸的对应主题图片。
+    流程：pick_best_cover 选 img_1 -> 智能裁剪 900x500 -> 保存
+    不再从 Pexels 服务端精确裁切（避免对单图的依赖）
     """
+    from PIL import Image
+
     cover_900_path = os.path.join(cover_dir, "cover_900x500.jpg")
     if os.path.exists(cover_900_path):
-        print("✓ 公众号封面已存在，跳过下载")
+        print("✓ 公众号封面已存在，跳过裁剪")
         return
 
-    print(f"封面图缺失，下载一张 {theme} 主题的 900x500 封面...")
-    download_cover_900x500(theme, cover_dir, seed=seed)
+    print("挑选最精美主题图作为公众号封面...")
+    best_path = pick_best_cover(cover_dir)
+    if not best_path:
+        print("错误: 找不到可用的主题图", file=sys.stderr)
+        sys.exit(1)
+
+    img = Image.open(best_path)
+    w, h = img.size
+    target_ratio = 900 / 500
+    if w / h > target_ratio:
+        new_w = int(h * target_ratio)
+        left = (w - new_w) // 2
+        img = img.crop((left, 0, left + new_w, h))
+    else:
+        new_h = int(w / target_ratio)
+        top = (h - new_h) // 2
+        img = img.crop((0, top, w, top + new_h))
+    img = img.resize((900, 500), Image.LANCZOS)
+    img.save(cover_900_path, "JPEG", quality=90)
+    print(f"✓ 公众号封面已生成: {cover_900_path}")
 
 
 def publish_article(
@@ -63,11 +84,10 @@ def publish_article(
     digest,
     content_html,
     cover_dir,
-    theme="abstract",
+    theme="books",
     image_count=6,
-    cover_seed=0,
 ):
-    """完整发布流程：准备主题贴图 -> 下载公众号封面 -> 上传图片 -> 创建草稿"""
+    """完整发布流程：下载主题贴图 -> 挑选最精美图作封面 -> 裁剪 900x500 -> 上传 -> 草稿"""
     print("=" * 50)
     print("微信公众号 - 书评发布")
     print("=" * 50)
@@ -78,9 +98,9 @@ def publish_article(
     print("\n[1/4] 准备主题贴图...")
     ensure_theme_images(cover_dir, theme, image_count)
 
-    # 2. 准备公众号封面（900x500 精确尺寸）
+    # 2. 准备公众号封面（从主题图美学评分挑选后裁剪为 900x500）
     print("\n[2/4] 准备公众号封面...")
-    ensure_cover_image(cover_dir, theme, seed=cover_seed)
+    ensure_cover_image(cover_dir)
 
     # 3. 加载配置和获取 token
     config = load_config()
@@ -144,15 +164,9 @@ def main():
     parser.add_argument("--digest", default="", help="文章摘要")
     parser.add_argument("--content-file", required=True, help="HTML内容文件路径")
     parser.add_argument("--cover-dir", required=True, help="封面和图片目录")
-    parser.add_argument("--theme", default="abstract", help="图片主题")
+    parser.add_argument("--theme", default="books", help="图片主题")
     parser.add_argument(
         "--image-count", type=int, default=6, help="主题插图数量（默认6：5正文+1结尾）"
-    )
-    parser.add_argument(
-        "--cover-seed",
-        type=int,
-        default=0,
-        help="封面图候选序号（0/1/2，相同主题下可轮换）",
     )
     args = parser.parse_args()
 
@@ -167,7 +181,6 @@ def main():
         args.cover_dir,
         args.theme,
         args.image_count,
-        args.cover_seed,
     )
 
 

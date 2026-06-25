@@ -64,15 +64,15 @@ HTML = f"""<section style="margin:0;padding:0;font-family:-apple-system,BlinkMac
     <img src="{THEME_IMG_1}" style="width:100%;max-width:600px;display:block;margin:0 auto;border-radius:4px;" alt="主题配图"/>
   </p>
 
-  <!-- 作者背景与创作时代 -->
+  <!-- 先搞懂写书的这个人 -->
   <p style="font-size:18px;font-weight:bold;color:{T};text-align:center;margin:0 0 16px;line-height:1em;">
-    <span>作者背景与创作时代</span>
+    <span>先搞懂写书的这个人</span>
   </p>
   <p style="font-size:16px;line-height:2;color:{BODY};margin:0 0 16px;text-indent:2em;">
     <span>正文段落。所有段落必须有 text-indent:2em。重点句用 <strong style="color:{T};background:{CBG};padding:1px 6px;border-radius:3px;">主题主色高亮</strong>，核心概念用 <span style="color:{T2};font-weight:bold;">强调色加粗</span>。</span>
   </p>
 
-  <!-- 主题配图2（作者背景后） -->
+  <!-- 主题配图2（先搞懂写书的这个人后） -->
   <p style="margin:0 0 20px;text-align:center;">
     <img src="{THEME_IMG_2}" style="width:100%;max-width:600px;display:block;margin:0 auto;border-radius:4px;" alt="主题配图"/>
   </p>
@@ -82,9 +82,9 @@ HTML = f"""<section style="margin:0;padding:0;font-family:-apple-system,BlinkMac
     <span style="color:{T2};">▍</span> 金句或核心观点。整段用主题主色加粗，加左侧强调色条与正文形成视觉对比。
   </p>
 
-  <!-- 全书完整逻辑思维导图 -->
+  <!-- 全书脉络 -->
   <p style="font-size:18px;font-weight:bold;color:{T};text-align:center;margin:0 0 16px;line-height:1em;">
-    <span>全书完整逻辑思维导图</span>
+    <span>全书脉络</span>
   </p>
   <p style="font-size:16px;line-height:2;color:{BODY};margin:0 0 16px;text-indent:2em;">
     <span>本章按章节脉络梳理<strong style="color:{T};background:{CBG};padding:1px 6px;border-radius:3px;">全书核心逻辑</strong>，用文字框图提炼主线。</span>
@@ -95,9 +95,9 @@ HTML = f"""<section style="margin:0;padding:0;font-family:-apple-system,BlinkMac
     <img src="{THEME_IMG_3}" style="width:100%;max-width:600px;display:block;margin:0 auto;border-radius:4px;" alt="主题配图"/>
   </p>
 
-  <!-- 三大颠覆性核心论点 -->
+  <!-- 三个颠覆认知的真相 -->
   <p style="font-size:18px;font-weight:bold;color:{T};text-align:center;margin:0 0 16px;line-height:1em;">
-    <span>三大颠覆性核心论点</span>
+    <span>三个颠覆认知的真相</span>
   </p>
   <p style="font-size:16px;line-height:2;color:{BODY};margin:0 0 16px;text-indent:2em;">
     <span><span style="color:{T2};font-weight:bold;">论点一：</span><strong style="color:{T};background:{CBG};padding:1px 6px;border-radius:3px;">核心颠覆性观点</strong>，附书中具体案例支撑。</span>
@@ -114,9 +114,9 @@ HTML = f"""<section style="margin:0;padding:0;font-family:-apple-system,BlinkMac
     <img src="{THEME_IMG_4}" style="width:100%;max-width:600px;display:block;margin:0 auto;border-radius:4px;" alt="主题配图"/>
   </p>
 
-  <!-- 批判性客观评析 -->
+  <!-- 这本书的短板，不吐不快 -->
   <p style="font-size:18px;font-weight:bold;color:{T};text-align:center;margin:0 0 16px;line-height:1em;">
-    <span>批判性客观评析</span>
+    <span>这本书的短板，不吐不快</span>
   </p>
   <p style="font-size:16px;line-height:2;color:{BODY};margin:0 0 16px;text-indent:2em;">
     <span>短板一：客观指出书中局限。<br/>短板二：逻辑漏洞分析。<br/>短板三：适用边界。<br/>短板四：时代局限。</span>
@@ -127,22 +127,22 @@ HTML = f"""<section style="margin:0;padding:0;font-family:-apple-system,BlinkMac
     <span style="color:{T2};">▍</span> 第二个金句或关键启发。
   </p>
 
-  <!-- 收获与成长 -->
+  <!-- 读完真正留下的东西 -->
   <p style="font-size:18px;font-weight:bold;color:{T};text-align:center;margin:0 0 16px;line-height:1em;">
-    <span>收获与成长</span>
+    <span>读完真正留下的东西</span>
   </p>
   <p style="font-size:16px;line-height:2;color:{BODY};margin:0 0 16px;text-indent:2em;">
     <span>读完能带走的<strong style="color:{T};background:{CBG};padding:1px 6px;border-radius:3px;">三样东西</strong>，从个人成长视角展开。</span>
   </p>
 
-  <!-- 主题配图5（收获与成长后） -->
+  <!-- 主题配图5（读完真正留下的东西后） -->
   <p style="margin:0 0 20px;text-align:center;">
     <img src="{THEME_IMG_5}" style="width:100%;max-width:600px;display:block;margin:0 auto;border-radius:4px;" alt="主题配图"/>
   </p>
 
-  <!-- 现实落地应用方案 -->
+  <!-- 四条拿来就用的行动项 -->
   <p style="font-size:18px;font-weight:bold;color:{T};text-align:center;margin:0 0 16px;line-height:1em;">
-    <span>现实落地应用方案</span>
+    <span>四条拿来就用的行动项</span>
   </p>
   <p style="font-size:16px;line-height:2;color:{BODY};margin:0 0 16px;text-indent:2em;">
     <span>方案一：具体执行步骤。<br/>方案二：可操作建议。<br/>方案三：拿来就用的行动项。</span>
@@ -150,9 +150,9 @@ HTML = f"""<section style="margin:0;padding:0;font-family:-apple-system,BlinkMac
 
   <p style="font-size:14px;color:#ccc;text-align:center;letter-spacing:8px;margin:20px 0;">· · · · · ·</p>
 
-  <!-- 星级评分与适配人群 -->
+  <!-- 值不值得花时间读 -->
   <p style="font-size:18px;font-weight:bold;color:{T};text-align:center;margin:0 0 16px;line-height:1em;">
-    <span>星级评分与适配人群</span>
+    <span>值不值得花时间读</span>
   </p>
 
   <p style="font-size:28px;text-align:center;margin:0 0 8px;">
