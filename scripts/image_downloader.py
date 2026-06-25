@@ -13,18 +13,21 @@ import urllib.request
 from PIL import Image, ImageStat
 
 
-# 精选 Pexels 候选 ID（每个主题 8-10 张，全部已测试可用）
-# 选择标准：构图饱满、色彩丰富、主题鲜明
+# 精选 Pexels 候选 ID（每个主题 8-10 张，实地下载验证）
+# 选择标准：构图饱满、色彩丰富、主题鲜明、与书评/影评审美契合
 THEME_CANDIDATES = {
     "books": [
-        256450,  # 书与咖啡
-        590493,  # 翻页
-        762687,  # 书架
-        1029141,  # 书页
-        3568520,  # 笔记本与笔
-        3568521,  # 笔记本俯拍
-        1112048,  # 翻页特写
-        4429270,  # 复古书籍
+        # Pexels 搜索"book"结果中精选的高质量图
+        415078,  # 草地上开本书（封面候选极佳）
+        433333,  # 书堆黑白（封面候选极佳，构图饱满）
+        4861364,  # 两人读书
+        5913138,  # 书+花+咖啡
+        6001171,  # 床上读书
+        7034613,  # 书架书+植物
+        1792734,  # 阳光读书
+        11197155,  # 古书桌上
+        13580974,  # 翻开的书页
+        904616,  # 咖啡+书+花俯拍
     ],
     "abstract": [
         1108572,  # 抽象光影
@@ -45,6 +48,8 @@ THEME_CANDIDATES = {
         3551226,  # 风景
         3551244,  # 风景光影
         3551419,  # 风景横幅
+        417173,  # 雪峰
+        355770,  # 黑白雪山
     ],
     "technology": [
         3568520,  # 代码屏幕
@@ -149,31 +154,51 @@ def aesthetics_score(image_path):
 def download_theme_images(theme, output_dir, count=6):
     """根据主题下载多张精美图片
 
-    自动跳过 404 候选，失败时回退到主题内其他候选。
+    自动跳过 404/失败候选，下载到临时文件名，再按美学评分重命名为 img_1.jpg ~ img_N.jpg
     返回: 已下载图片路径列表（按美学评分降序）
     """
+    os.makedirs(output_dir, exist_ok=True)
     candidates = THEME_CANDIDATES.get(theme, THEME_CANDIDATES["books"])
-    downloaded = []
+    downloaded = []  # 临时文件列表
 
+    # 1) 全部下载到临时文件
     for i, pid in enumerate(candidates):
         if len(downloaded) >= count:
             break
-        output_path = os.path.join(output_dir, f"img_{len(downloaded) + 1}.jpg")
-        if download_pexels_image(pid, output_path):
-            downloaded.append(output_path)
+        tmp_path = os.path.join(output_dir, f"_tmp_{theme}_{i}_{pid}.jpg")
+        if download_pexels_image(pid, tmp_path):
+            downloaded.append(tmp_path)
 
-    # 按美学评分降序排序（封面挑选时会取第一张）
+    if not downloaded:
+        return []
+
+    # 2) 按美学评分排序
     scored = [(p, aesthetics_score(p)) for p in downloaded]
     scored.sort(key=lambda x: x[1], reverse=True)
 
-    # 按评分重命名回 img_N.jpg
+    # 3) 先清空目标 img_N.jpg（避免 rename 冲突或 macOS 覆盖丢失数据）
+    for i in range(1, count + 1):
+        f = os.path.join(output_dir, f"img_{i}.jpg")
+        if os.path.exists(f):
+            os.remove(f)
+
+    # 4) 重命名到 img_N.jpg
+    result = []
     for new_idx, (path, score) in enumerate(scored, 1):
         new_path = os.path.join(output_dir, f"img_{new_idx}.jpg")
-        if path != new_path:
-            os.rename(path, new_path)
+        os.rename(path, new_path)
+        result.append(new_path)
         print(f"  img_{new_idx}.jpg  评分 {score}")
 
-    return [p for p, _ in scored]
+    # 5) 清理可能残留的临时文件
+    for fname in os.listdir(output_dir):
+        if fname.startswith("_tmp_"):
+            try:
+                os.remove(os.path.join(output_dir, fname))
+            except OSError:
+                pass
+
+    return result
 
 
 def pick_best_cover(theme_images_dir):

@@ -45,7 +45,7 @@ THEME_IMG_5 = "http://mmbiz.qpic.cn/REPLACE_WITH_THEME_IMG_5"
 THEME_IMG_END = "http://mmbiz.qpic.cn/REPLACE_WITH_THEME_IMG_END"
 
 # 文章 HTML 内容（7段式，无数字编号，全文主题贴图穿插）
-HTML = f"""<section style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;color:#333;background:#FBF8FC;">
+HTML = f"""<section style="margin:0;padding:0 0 48px;font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;color:#333;background:#FBF8FC;">
 
   <p style="font-size:12px;color:{T2};text-align:center;letter-spacing:4px;margin:24px 0 8px;line-height:3em;">
     <span>📖 读书拆解</span>
@@ -77,9 +77,9 @@ HTML = f"""<section style="margin:0;padding:0;font-family:-apple-system,BlinkMac
     <img src="{THEME_IMG_2}" style="width:100%;max-width:600px;display:block;margin:0 auto;border-radius:4px;" alt="主题配图"/>
   </p>
 
-  <!-- 金句引用块（左侧色条 + 主题色加粗） -->
-  <p style="font-size:17px;line-height:1.9;color:{T};font-weight:bold;text-indent:2em;margin:0 0 20px;padding:14px 18px;background:{CBG};border-left:4px solid {T2};border-radius:6px;">
-    <span style="color:{T2};">▍</span> 金句或核心观点。整段用主题主色加粗，加左侧强调色条与正文形成视觉对比。
+  <!-- 金句引用块（圆角浅背景，无左侧竖条） -->
+  <p style="font-size:17px;line-height:1.9;color:{T};font-weight:bold;text-indent:2em;margin:0 0 20px;padding:16px 20px;background:{CBG};border-radius:8px;">
+    <span>金句或核心观点。整段用主题主色加粗，圆角浅背景与正文形成视觉对比。</span>
   </p>
 
   <!-- 全书脉络 -->
@@ -123,8 +123,8 @@ HTML = f"""<section style="margin:0;padding:0;font-family:-apple-system,BlinkMac
   </p>
 
   <!-- 金句二 -->
-  <p style="font-size:17px;line-height:1.9;color:{T};font-weight:bold;text-indent:2em;margin:0 0 20px;padding:14px 18px;background:{CBG};border-left:4px solid {T2};border-radius:6px;">
-    <span style="color:{T2};">▍</span> 第二个金句或关键启发。
+  <p style="font-size:17px;line-height:1.9;color:{T};font-weight:bold;text-indent:2em;margin:0 0 20px;padding:16px 20px;background:{CBG};border-radius:8px;">
+    <span>第二个金句或关键启发。</span>
   </p>
 
   <!-- 读完真正留下的东西 -->
@@ -170,15 +170,27 @@ HTML = f"""<section style="margin:0;padding:0;font-family:-apple-system,BlinkMac
   <p style="font-size:16px;line-height:2;color:{BODY};margin:0 0 8px;text-indent:2em;">
     <strong style="color:{T};">适合人群：</strong>
   </p>
-  <p style="font-size:16px;line-height:2;color:{BODY};margin:0 0 16px;text-indent:2em;">
-    <span>✅&nbsp;&nbsp;创业者/管理者——理解系统脆弱性和反脆弱设计<br />✅&nbsp;&nbsp;对个人成长感兴趣的读者——掌握从压力中受益的方法<br />✅&nbsp;&nbsp;对决策科学感兴趣的读者——理解非线性风险的本质</span>
+  <p style="font-size:16px;line-height:2;color:{BODY};margin:0 0 8px;padding-left:2em;">
+    <span>✅&nbsp;&nbsp;创业者/管理者——理解系统脆弱性和反脆弱设计</span>
+  </p>
+  <p style="font-size:16px;line-height:2;color:{BODY};margin:0 0 8px;padding-left:2em;">
+    <span>✅&nbsp;&nbsp;对个人成长感兴趣的读者——掌握从压力中受益的方法</span>
+  </p>
+  <p style="font-size:16px;line-height:2;color:{BODY};margin:0 0 16px;padding-left:2em;">
+    <span>✅&nbsp;&nbsp;对决策科学感兴趣的读者——理解非线性风险的本质</span>
   </p>
 
   <p style="font-size:16px;line-height:2;color:{BODY};margin:0 0 8px;text-indent:2em;">
     <strong style="color:{T};">不适合人群：</strong>
   </p>
-  <p style="font-size:16px;line-height:2;color:{BODY};margin:0 0 16px;text-indent:2em;">
-    <span>🚫&nbsp;&nbsp;已读过类似书籍的人——内容高度重复<br />🚫&nbsp;&nbsp;讨厌抽象论证的人——本书充满概念性思维<br />🚫&nbsp;&nbsp;寻找具体操作手册的人——本书偏哲学思辨</span>
+  <p style="font-size:16px;line-height:2;color:{BODY};margin:0 0 8px;padding-left:2em;">
+    <span>🚫&nbsp;&nbsp;已读过类似书籍的人——内容高度重复</span>
+  </p>
+  <p style="font-size:16px;line-height:2;color:{BODY};margin:0 0 8px;padding-left:2em;">
+    <span>🚫&nbsp;&nbsp;讨厌抽象论证的人——本书充满概念性思维</span>
+  </p>
+  <p style="font-size:16px;line-height:2;color:{BODY};margin:0 0 24px;padding-left:2em;">
+    <span>🚫&nbsp;&nbsp;寻找具体操作手册的人——本书偏哲学思辨</span>
   </p>
 
   <!-- 结尾页：主题配图 + 书名 + 作者 + 核心总结 -->
@@ -194,7 +206,7 @@ HTML = f"""<section style="margin:0;padding:0;font-family:-apple-system,BlinkMac
   <p style="font-size:14px;color:{BODY};text-align:center;margin:0 0 4px;line-height:1.6;">
     <span>作者 · 读书笔记</span>
   </p>
-  <p style="font-size:14px;color:{T2};text-align:center;margin:0 0 24px;line-height:1.8;font-weight:bold;">
+  <p style="font-size:14px;color:{T2};text-align:center;margin:8px 0 32px;line-height:1.8;font-weight:bold;">
     <span>「 一句话总结：核心洞察 」</span>
   </p>
 
