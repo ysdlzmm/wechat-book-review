@@ -43,9 +43,9 @@ function showHelp() {
   npx wechat-media-writer <command> [options]
 
 命令:
-  cover <书名/电影名> [作者] [ISBN]    获取书籍封面
-  download <主题> [数量]                下载主题插图
-  publish                               发布文章到微信（封面/插图缺失会自动补齐）
+  cover <书名/电影名> [作者] [ISBN]    获取书籍原封面（仅用于书籍插图占位）
+  download <主题> [数量] [输出目录]    下载主题贴图
+  publish                               发布文章到微信（主题贴图/封面缺失会自动补齐）
   help                                  显示帮助信息
 
 publish 选项:
@@ -55,20 +55,14 @@ publish 选项:
   --author <作者>            文章作者，默认"读书笔记"
   --digest <摘要>            文章摘要
   --theme <主题>             图片主题：abstract/books/nature/technology/business，默认 abstract
-  --image-count <数量>       主题插图数量，默认 5
-  --book-title <书名>        书籍标题（封面缺失时自动获取）
-  --book-author <作者>       书籍作者
-  --book-isbn <ISBN>         书籍ISBN
+  --image-count <数量>       主题贴图数量，默认 6（5正文 + 1结尾）
 
 示例:
-  npx wechat-media-writer cover "人类简史" "尤瓦尔·赫拉利"
-  npx wechat-media-writer download books 5
-  npx wechat-media-writer publish \\
-    --title "《人类简史》全书深度拆解" \\
-    --content-file content.html \\
-    --cover-dir /tmp/wx \\
-    --book-title "人类简史" \\
-    --book-author "尤瓦尔·赫拉利" \\
+  npx wechat-media-writer download books 6
+  npx wechat-media-writer publish ^
+    --title "《人类简史》全书深度拆解" ^
+    --content-file content.html ^
+    --cover-dir /tmp/wx ^
     --theme books
 
 配置:
