@@ -12,7 +12,7 @@ import sys
 # 添加当前目录到模块搜索路径
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from book_cover import crop_cover_from_local, fetch_theme_cover
+from book_cover import download_cover_900x500
 from image_downloader import download_theme_images
 from wechat_api import (
     load_config,
@@ -42,30 +42,19 @@ def ensure_theme_images(cover_dir, theme="abstract", count=6):
     download_theme_images(theme, cover_dir, count)
 
 
-def ensure_cover_image(cover_dir, theme="abstract"):
-    """确保公众号封面（900x500）存在，缺失则从主题图裁剪"""
+def ensure_cover_image(cover_dir, theme="abstract", seed=0):
+    """确保公众号封面（900x500）存在，缺失则下载一张对应主题的精确尺寸封面
+
+    注意：不再从主题插图裁剪（裁剪可能损失画面重要内容），
+    而是从 Pexels 直接请求 900x500 精确尺寸的对应主题图片。
+    """
     cover_900_path = os.path.join(cover_dir, "cover_900x500.jpg")
     if os.path.exists(cover_900_path):
-        print("✓ 公众号封面已存在，跳过裁剪")
+        print("✓ 公众号封面已存在，跳过下载")
         return
 
-    # 优先用本地第一张主题图裁剪；否则从主题URL下载
-    candidates = sorted(
-        [
-            f
-            for f in os.listdir(cover_dir)
-            if f.startswith("img_") and f.endswith((".jpg", ".jpeg", ".png"))
-        ]
-    )
-    if candidates:
-        crop_cover_from_local(os.path.join(cover_dir, candidates[0]), cover_dir)
-    else:
-        # 极少见：连主题图都没有的情况
-        print("主题图与封面均缺失，从网络拉取主题封面...")
-        from book_cover import download_and_process_cover
-
-        url = fetch_theme_cover(theme)
-        download_and_process_cover(url, cover_dir)
+    print(f"封面图缺失，下载一张 {theme} 主题的 900x500 封面...")
+    download_cover_900x500(theme, cover_dir, seed=seed)
 
 
 def publish_article(
@@ -76,8 +65,9 @@ def publish_article(
     cover_dir,
     theme="abstract",
     image_count=6,
+    cover_seed=0,
 ):
-    """完整发布流程：准备主题贴图 -> 裁剪公众号封面 -> 上传图片 -> 创建草稿"""
+    """完整发布流程：准备主题贴图 -> 下载公众号封面 -> 上传图片 -> 创建草稿"""
     print("=" * 50)
     print("微信公众号 - 书评发布")
     print("=" * 50)
@@ -88,9 +78,9 @@ def publish_article(
     print("\n[1/4] 准备主题贴图...")
     ensure_theme_images(cover_dir, theme, image_count)
 
-    # 2. 准备公众号封面（900x500）
+    # 2. 准备公众号封面（900x500 精确尺寸）
     print("\n[2/4] 准备公众号封面...")
-    ensure_cover_image(cover_dir, theme)
+    ensure_cover_image(cover_dir, theme, seed=cover_seed)
 
     # 3. 加载配置和获取 token
     config = load_config()
@@ -158,6 +148,12 @@ def main():
     parser.add_argument(
         "--image-count", type=int, default=6, help="主题插图数量（默认6：5正文+1结尾）"
     )
+    parser.add_argument(
+        "--cover-seed",
+        type=int,
+        default=0,
+        help="封面图候选序号（0/1/2，相同主题下可轮换）",
+    )
     args = parser.parse_args()
 
     with open(args.content_file, "r", encoding="utf-8") as f:
@@ -171,6 +167,7 @@ def main():
         args.cover_dir,
         args.theme,
         args.image_count,
+        args.cover_seed,
     )
 
 

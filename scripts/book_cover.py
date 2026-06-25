@@ -124,22 +124,65 @@ def fetch_book_cover(book_title, author="", isbn=""):
     return cover_url
 
 
-def fetch_theme_cover(theme="abstract"):
-    """从 Pexels CDN 获取与主题贴图一致的主题封面（推荐使用）"""
-    theme_urls = {
-        "abstract": "https://images.pexels.com/photos/2693208/pexels-photo-2693208.jpeg?auto=compress&cs=tinysrgb&w=1080",
-        "books": "https://images.pexels.com/photos/159711/books-bookstore-book-reading-159711.jpeg?auto=compress&cs=tinysrgb&w=1080",
-        "nature": "https://images.pexels.com/photos/2387873/pexels-photo-2387873.jpeg?auto=compress&cs=tinysrgb&w=1080",
-        "technology": "https://images.pexels.com/photos/3568520/pexels-photo-3568520.jpeg?auto=compress&cs=tinysrgb&w=1080",
-        "business": "https://images.pexels.com/photos/3184292/pexels-photo-3184292.jpeg?auto=compress&cs=tinysrgb&w=1080",
-    }
-    url = theme_urls.get(theme, theme_urls["abstract"])
-    print(f"✓ 主题封面URL ({theme}): {url}")
+# 每个主题对应 3 张精选的 900x500 Pexels 封面图（fit=crop 自动精确裁切）
+# 选用宽高比接近 1.8 的高质量原图，避免裁切损失重要内容
+THEME_COVER_CANDIDATES = {
+    "abstract": [1108572, 1762851, 3109808],
+    "books": [256450, 590493, 762687],
+    "nature": [2387873, 2387874, 2387876],
+    "technology": [3568520, 1181244, 546819],
+    "business": [3184292, 210607, 3184296],
+}
+
+
+def _build_cover_url(pid, w=900, h=500):
+    """构造 Pexels CDN URL，含精确 900x500 fit=crop 裁切参数"""
+    return f"https://images.pexels.com/photos/{pid}/pexels-photo-{pid}.jpeg?auto=compress&cs=tinysrgb&w={w}&h={h}&fit=crop"
+
+
+def fetch_theme_cover(theme="abstract", seed=0):
+    """从 Pexels CDN 获取一张与主题对应的 900x500 精确封面 URL（不裁剪原图）"""
+    candidates = THEME_COVER_CANDIDATES.get(theme, THEME_COVER_CANDIDATES["abstract"])
+    pid = candidates[seed % len(candidates)]
+    url = _build_cover_url(pid)
+    print(f"✓ 主题封面URL ({theme}, pid={pid}): {url}")
     return url
 
 
+def download_cover_900x500(theme="abstract", output_dir="/tmp", seed=0):
+    """下载一张 900x500 的主题封面图（Pexels 服务端精确裁剪，无需本地处理）
+
+    返回: cover_900x500.jpg 绝对路径
+    """
+    ctx = ssl.create_default_context()
+    ctx.check_hostname = False
+    ctx.verify_mode = ssl.CERT_NONE
+
+    os.makedirs(output_dir, exist_ok=True)
+    cover_900_path = os.path.join(output_dir, "cover_900x500.jpg")
+
+    candidates = THEME_COVER_CANDIDATES.get(theme, THEME_COVER_CANDIDATES["abstract"])
+    # 顺序尝试每个候选 PID，跳过 404
+    for i, pid in enumerate(candidates):
+        idx = (seed + i) % len(candidates)
+        pid_try = candidates[idx]
+        url = _build_cover_url(pid_try)
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+            data = urllib.request.urlopen(req, context=ctx, timeout=15).read()
+            with open(cover_900_path, "wb") as f:
+                f.write(data)
+            print(f"✓ 公众号封面已下载 ({theme}, pid={pid_try}): {cover_900_path}")
+            return cover_900_path
+        except Exception as e:
+            print(f"  候选 pid={pid_try} 失败: {e}")
+            continue
+
+    raise RuntimeError(f"主题 {theme} 的所有候选封面均下载失败")
+
+
 def download_and_process_cover(cover_url, output_dir):
-    """从主题贴图URL下载并处理为 900x500 公众号封面 + 600px 文章封面"""
+    """从主题贴图URL下载并处理为 600px 文章封面（兼容旧调用）"""
     from PIL import Image
 
     ctx = ssl.create_default_context()
@@ -154,66 +197,21 @@ def download_and_process_cover(cover_url, output_dir):
     with open(original_path, "wb") as f:
         f.write(data)
 
-    # 文章内配图（600px 宽）
     img = Image.open(original_path)
     w, h = img.size
     if w > 600:
         ratio = 600 / w
-        new_w = 600
-        new_h = int(h * ratio)
-        img = img.resize((new_w, new_h), Image.LANCZOS)
+        img = img.resize((600, int(h * ratio)), Image.LANCZOS)
     img.save(os.path.join(output_dir, "theme_cover_600.jpg"), "JPEG", quality=90)
 
-    # 公众号封面（900x500）
-    img2 = Image.open(original_path)
-    w, h = img2.size
-    target_ratio = 900 / 500
-    if w / h > target_ratio:
-        new_w = int(h * target_ratio)
-        left = (w - new_w) // 2
-        img2 = img2.crop((left, 0, left + new_w, h))
-    else:
-        new_h = int(w / target_ratio)
-        top = (h - new_h) // 2
-        img2 = img2.crop((0, top, w, top + new_h))
-    img2 = img2.resize((900, 500), Image.LANCZOS)
-    cover_900_path = os.path.join(output_dir, "cover_900x500.jpg")
-    img2.save(cover_900_path, "JPEG", quality=90)
-
-    print(f"✓ 主题封面已保存: theme_cover_600.jpg")
-    print(f"✓ 公众号封面已保存: {cover_900_path}")
-
-    return os.path.join(output_dir, "theme_cover_600.jpg"), cover_900_path
+    print(f"✓ 主题封面(600px)已保存: theme_cover_600.jpg")
+    return os.path.join(output_dir, "theme_cover_600.jpg"), None
 
 
 def crop_cover_from_local(source_path, output_dir):
-    """从本地主题贴图裁剪为 900x500 公众号封面（用于已有主题图但缺封面图的情况）"""
-    from PIL import Image
-
-    if not os.path.exists(source_path):
-        print(f"错误: 源图不存在 {source_path}", file=sys.stderr)
-        return None
-
-    os.makedirs(output_dir, exist_ok=True)
-    img = Image.open(source_path)
-    w, h = img.size
-    target_ratio = 900 / 500
-    if w / h > target_ratio:
-        new_w = int(h * target_ratio)
-        left = (w - new_w) // 2
-        img = img.crop((left, 0, left + new_w, h))
-    else:
-        new_h = int(w / target_ratio)
-        top = (h - new_h) // 2
-        img = img.crop((0, top, w, top + new_h))
-    img = img.resize((900, 500), Image.LANCZOS)
-
-    cover_900_path = os.path.join(output_dir, "cover_900x500.jpg")
-    img.save(cover_900_path, "JPEG", quality=90)
-    print(
-        f"✓ 公众号封面已生成（基于 {os.path.basename(source_path)}）: {cover_900_path}"
-    )
-    return cover_900_path
+    """兼容旧 API：建议改用 download_cover_900x500()"""
+    print("⚠️ crop_cover_from_local 已弃用，请改用 download_cover_900x500(theme=...)")
+    return None
 
 
 if __name__ == "__main__":

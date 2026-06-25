@@ -208,28 +208,21 @@ from image_downloader import download_theme_images
 urls = download_theme_images("books", "/tmp/images", count=6)
 ```
 
-### 第二步：制作公众号封面图
+### 第二步：下载公众号封面图（精确 900x500）
 
-公众号封面（`cover_900x500.jpg`）用主题贴图中的一张裁剪为 900x500 比例：
+**公众号封面必须是 900x500 精确尺寸的精美图片**，与正文主题风格统一。
+不再从主题贴图裁剪（裁剪可能损失画面关键内容）——直接从 Pexels CDN 请求 900x500 精确裁切。
+
+每个主题预存 3 张高质量 Pexels 候选图（见 `scripts/book_cover.py` 的 `THEME_COVER_CANDIDATES`），
+通过 `?w=900&h=500&fit=crop` 参数让 Pexels 服务端精确裁切为 900x500：
 
 ```python
-from PIL import Image
-img = Image.open("img_1.jpg")
-w, h = img.size
-target_ratio = 900 / 500
-if w / h > target_ratio:
-    new_w = int(h * target_ratio)
-    left = (w - new_w) // 2
-    img = img.crop((left, 0, left + new_w, h))
-else:
-    new_h = int(w / target_ratio)
-    top = (h - new_h) // 2
-    img = img.crop((0, top, w, top + new_h))
-img = img.resize((900, 500), Image.LANCZOS)
-img.save("cover_900x500.jpg", "JPEG", quality=85)
+from book_cover import download_cover_900x500
+# 下载一张 books 主题的 900x500 封面（seed=0/1/2 轮换候选图）
+download_cover_900x500("books", "/tmp/wx", seed=0)
 ```
 
-`scripts/book_cover.py` 的 `download_and_process_cover()` 函数会从主题贴图（`img_1.jpg`）裁剪生成 900x500 封面。
+**支持的主题**：`abstract` / `books` / `nature` / `technology` / `business`
 
 ### 第三步：上传图片到微信
 
