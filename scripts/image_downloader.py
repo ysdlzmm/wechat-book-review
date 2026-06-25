@@ -74,22 +74,35 @@ THEME_CANDIDATES = {
 }
 
 
-def download_image(url, output_path):
-    """下载图片到指定路径"""
+def download_image(url, output_path, retries=3, retry_delay=1):
+    """下载图片到指定路径，带重试机制"""
+    import time
+
     ctx = ssl.create_default_context()
     ctx.check_hostname = False
     ctx.verify_mode = ssl.CERT_NONE
 
     req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-    try:
-        data = urllib.request.urlopen(req, context=ctx, timeout=15).read()
-        os.makedirs(os.path.dirname(output_path), exist_ok=True)
-        with open(output_path, "wb") as f:
-            f.write(data)
-        return True
-    except Exception as e:
-        print(f"下载失败: {e}")
-        return False
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
+    for attempt in range(1, retries + 1):
+        try:
+            data = urllib.request.urlopen(req, context=ctx, timeout=20).read()
+            # 验证下载到的是真实图片（> 5KB 且 magic bytes 正确）
+            if len(data) < 5000:
+                raise ValueError(f"下载文件过小: {len(data)} bytes")
+            if not data[:3] in (b"\xff\xd8\xff", b"\x89PN", b"GIF"):
+                raise ValueError(f"非图片格式: {data[:8]!r}")
+            with open(output_path, "wb") as f:
+                f.write(data)
+            return True
+        except Exception as e:
+            if attempt < retries:
+                time.sleep(retry_delay * attempt)
+                continue
+            print(f"下载失败（重试 {retries} 次后放弃）: {e}")
+            return False
+    return False
 
 
 def download_pexels_image(pid, output_path, w=1200):
@@ -154,12 +167,14 @@ def aesthetics_score(image_path):
 def download_theme_images(theme, output_dir, count=6):
     """根据主题下载多张精美图片
 
-    自动跳过 404/失败候选，下载到临时文件名，再按美学评分重命名为 img_1.jpg ~ img_N.jpg
+    自动跳过 404/失败候选（带 3 次重试），下载到临时文件名，
+    再按美学评分重命名为 img_1.jpg ~ img_N.jpg
     返回: 已下载图片路径列表（按美学评分降序）
     """
     os.makedirs(output_dir, exist_ok=True)
     candidates = THEME_CANDIDATES.get(theme, THEME_CANDIDATES["books"])
     downloaded = []  # 临时文件列表
+    failed_pids = []
 
     # 1) 全部下载到临时文件
     for i, pid in enumerate(candidates):
@@ -168,8 +183,13 @@ def download_theme_images(theme, output_dir, count=6):
         tmp_path = os.path.join(output_dir, f"_tmp_{theme}_{i}_{pid}.jpg")
         if download_pexels_image(pid, tmp_path):
             downloaded.append(tmp_path)
+        else:
+            failed_pids.append(pid)
 
+    if failed_pids:
+        print(f"  ⚠️ 候选 {failed_pids} 下载失败（共 {len(failed_pids)} 张）")
     if not downloaded:
+        print(f"  ❌ 主题 {theme} 所有候选图下载失败")
         return []
 
     # 2) 按美学评分排序

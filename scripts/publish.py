@@ -40,7 +40,13 @@ def ensure_theme_images(cover_dir, theme="books", count=6):
         return
 
     print(f"主题插图不足，自动下载 {count} 张（主题: {theme}）...")
-    download_theme_images(theme, cover_dir, count)
+    result = download_theme_images(theme, cover_dir, count)
+
+    if len(result) < count:
+        print(
+            f"⚠️ 实际下载 {len(result)}/{count} 张，建议换其他主题或重试",
+            file=sys.stderr,
+        )
 
 
 def ensure_cover_image(cover_dir):

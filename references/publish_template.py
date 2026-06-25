@@ -61,7 +61,7 @@ HTML = f"""<section style="margin:0;padding:0 0 48px;font-family:-apple-system,B
 
   <!-- 主题配图1（头部） -->
   <p style="margin:0 0 20px;text-align:center;">
-    <img src="{THEME_IMG_1}" style="width:100%;max-width:600px;display:block;margin:0 auto;border-radius:4px;" alt="主题配图"/>
+    <img src="{THEME_IMG_1}" style="width:100%;max-width:600px;display:block;margin:0 auto;border-radius:4px;" alt=""/>
   </p>
 
   <!-- 先搞懂写书的这个人 -->
@@ -74,7 +74,7 @@ HTML = f"""<section style="margin:0;padding:0 0 48px;font-family:-apple-system,B
 
   <!-- 主题配图2（先搞懂写书的这个人后） -->
   <p style="margin:0 0 20px;text-align:center;">
-    <img src="{THEME_IMG_2}" style="width:100%;max-width:600px;display:block;margin:0 auto;border-radius:4px;" alt="主题配图"/>
+    <img src="{THEME_IMG_2}" style="width:100%;max-width:600px;display:block;margin:0 auto;border-radius:4px;" alt=""/>
   </p>
 
   <!-- 金句引用块（圆角浅背景，无左侧竖条） -->
@@ -92,7 +92,7 @@ HTML = f"""<section style="margin:0;padding:0 0 48px;font-family:-apple-system,B
 
   <!-- 主题配图3（逻辑导图后） -->
   <p style="margin:0 0 20px;text-align:center;">
-    <img src="{THEME_IMG_3}" style="width:100%;max-width:600px;display:block;margin:0 auto;border-radius:4px;" alt="主题配图"/>
+    <img src="{THEME_IMG_3}" style="width:100%;max-width:600px;display:block;margin:0 auto;border-radius:4px;" alt=""/>
   </p>
 
   <!-- 三个颠覆认知的真相 -->
@@ -111,7 +111,7 @@ HTML = f"""<section style="margin:0;padding:0 0 48px;font-family:-apple-system,B
 
   <!-- 主题配图4（论点后） -->
   <p style="margin:0 0 20px;text-align:center;">
-    <img src="{THEME_IMG_4}" style="width:100%;max-width:600px;display:block;margin:0 auto;border-radius:4px;" alt="主题配图"/>
+    <img src="{THEME_IMG_4}" style="width:100%;max-width:600px;display:block;margin:0 auto;border-radius:4px;" alt=""/>
   </p>
 
   <!-- 这本书的短板，不吐不快 -->
@@ -137,7 +137,7 @@ HTML = f"""<section style="margin:0;padding:0 0 48px;font-family:-apple-system,B
 
   <!-- 主题配图5（读完真正留下的东西后） -->
   <p style="margin:0 0 20px;text-align:center;">
-    <img src="{THEME_IMG_5}" style="width:100%;max-width:600px;display:block;margin:0 auto;border-radius:4px;" alt="主题配图"/>
+    <img src="{THEME_IMG_5}" style="width:100%;max-width:600px;display:block;margin:0 auto;border-radius:4px;" alt=""/>
   </p>
 
   <!-- 四条拿来就用的行动项 -->
@@ -195,7 +195,7 @@ HTML = f"""<section style="margin:0;padding:0 0 48px;font-family:-apple-system,B
 
   <!-- 结尾页：主题配图 + 书名 + 作者 + 核心总结 -->
   <p style="margin:0 0 16px;text-align:center;">
-    <img src="{THEME_IMG_END}" style="width:100%;max-width:600px;display:block;margin:0 auto;border-radius:4px;" alt="主题配图"/>
+    <img src="{THEME_IMG_END}" style="width:100%;max-width:600px;display:block;margin:0 auto;border-radius:4px;" alt=""/>
   </p>
 
   <p style="font-size:14px;color:#ccc;text-align:center;letter-spacing:8px;margin:24px 0 16px;">· · · · · ·</p>
