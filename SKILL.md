@@ -397,6 +397,7 @@ python3 scripts/publish.py --title "标题" --content-file content.html --cover-
 <p style="font-size:14px;color:{T2};text-align:center;margin:0 0 4px;line-height:1.8;font-weight:bold;">
     <span>「 一句话总结：核心洞察 」</span>
 </p>
+ <p style="text-align:center;margin:24px 0 0;color:#ccc;">· END ·</p>
 ```
 
 ### 评分格式要求

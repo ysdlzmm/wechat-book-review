@@ -122,12 +122,10 @@ wechat-media-writer/
 │   └── cli.js                  # CLI 入口
 ├── scripts/
 │   ├── book_cover.py          # 书籍封面获取
-│   ├── image_downloader.py    # 主题插图下载
+│   ├── image_downloader.py    # 主题插图下载（含美学评分挑选封面）
 │   ├── wechat_api.py          # 微信 API 封装（token/上传/草稿）
 │   ├── publish.py             # 一键发布主脚本（含封面/插图自动补齐）
-│   └── install.js             # npm postinstall（检查 Python/Pillow）
-└── references/
-    └── publish_template.py    # 发布脚本模板
+│   └── install.js             # npm postinstall（检查 Python/Pillow + 注册 Skill）
 ```
 
 ## 发布到 npm

@@ -9,7 +9,6 @@
   "files": [
     "bin/",
     "scripts/",
-    "references/",
     "SKILL.md",
     "README.md"
   ],
