@@ -370,14 +370,14 @@ python3 scripts/publish.py --title "标题" --content-file content.html --cover-
 <p style="font-size:16px;line-height:2;color:{BODY};margin:0 0 8px;text-indent:2em;">
     <strong style="color:{T};">适合人群：</strong>
 </p>
-<p style="font-size:16px;line-height:2;color:{BODY};margin:0 0 16px;text-indent:2em;">
+<p style="font-size:16px;line-height:2;color:{BODY};margin:0 0 16px;padding-left:2em;">
     <span>✅  创业者/管理者——具体理由<br />✅  陷入职业倦怠期的人——具体理由<br />✅  对某领域感兴趣的读者——具体理由</span>
 </p>
 
 <p style="font-size:16px;line-height:2;color:{BODY};margin:0 0 8px;text-indent:2em;">
     <strong style="color:{T};">不适合人群：</strong>
 </p>
-<p style="font-size:16px;line-height:2;color:{BODY};margin:0 0 16px;text-indent:2em;">
+<p style="font-size:16px;line-height:2;color:{BODY};margin:0 0 16px;padding-left:2em;">
     <span>🚫  已读过类似书籍的人——内容高度重复<br />🚫  讨厌某种风格的人——具体理由<br />🚫  寻找其他类型内容的人——具体理由</span>
 </p>
 
