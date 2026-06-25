@@ -2,8 +2,8 @@
 """
 图片下载模块
 - 每个主题预存 8-10 张精选 Pexels 候选 ID（已实地测试可用）
-- 下载时跳过 404 候选
-- 提供 aestheTics_score() 函数评估图片"精美度"，便于封面自动挑选
+- 下载时跳过 404 候选，并校验宽高比（优先 4:3 / 3:2 横向图）
+- 提供 aesthetics_score() 函数评估图片"精美度"，便于封面自动挑选
 """
 
 import os
@@ -14,20 +14,23 @@ from PIL import Image, ImageStat
 
 
 # 精选 Pexels 候选 ID（每个主题 8-10 张，实地下载验证）
-# 选择标准：构图饱满、色彩丰富、主题鲜明、与书评/影评审美契合
+# 选择标准：
+#   1) 比例优先 4:3 (1.33) 其次 3:2 (1.5) 横向构图（宽 > 高）
+#   2) 主题契合（书评/影评主题）
+#   3) 构图饱满、色彩丰富、画面精美
 THEME_CANDIDATES = {
     "books": [
-        # Pexels 搜索"book"结果中精选的高质量图
-        415078,  # 草地上开本书（封面候选极佳）
-        433333,  # 书堆黑白（封面候选极佳，构图饱满）
-        4861364,  # 两人读书
-        5913138,  # 书+花+咖啡
-        6001171,  # 床上读书
-        7034613,  # 书架书+植物
-        1792734,  # 阳光读书
-        11197155,  # 古书桌上
-        13580974,  # 翻开的书页
-        904616,  # 咖啡+书+花俯拍
+        # 横向 3:2 主力 - 已实地下载验证为"读书/书"主题
+        415078,  # 3:2 - 草地上开本书（封面候选极佳）
+        904616,  # 3:2 - 咖啡+书+花俯拍
+        1319854,  # 3:2 - 图书馆书墙（精装）
+        4974915,  # 3:2 - 翻书动作
+        2228547,  # 3:2 - 翻书
+        1370295,  # 3:2 - 开本书
+        2099683,  # 16:9 - 翻书动作
+        # 已剔除：以下 ID 在 Pexels 搜索结果中出现但主题不契合（风景、人物特写、粉背景等）
+        # 4239031 (电脑前背影)、36729918 (粉背景酒杯)、2820896 (街舞)、
+        # 1444442 (手部彩绘)、261949 (报纸)、1438072 (笔记本咖啡不够书主题)
     ],
     "abstract": [
         1108572,  # 抽象光影
@@ -164,6 +167,30 @@ def aesthetics_score(image_path):
     return round(total, 2)
 
 
+def is_valid_landscape(image_path, min_ratio=1.2, max_ratio=2.0):
+    """校验图片是横向图且比例在合理范围
+
+    横向比例：1.2 ~ 2.0
+    排除：竖向图、纯单色图（细节过低）
+    """
+    try:
+        img = Image.open(image_path)
+        w, h = img.size
+        if w < h:
+            return False
+        ratio = w / h
+        if not (min_ratio <= ratio <= max_ratio):
+            return False
+        # 校验不是纯色图（stddev 极低 = 纯色/几乎无细节）
+        stat = ImageStat.Stat(img.convert("RGB"))
+        avg_stddev = sum(stat.stddev) / 3
+        if avg_stddev < 15:  # 几乎纯色，丢弃
+            return False
+        return True
+    except Exception:
+        return False
+
+
 def download_theme_images(theme, output_dir, count=6):
     """根据主题下载多张精美图片
 
@@ -176,13 +203,24 @@ def download_theme_images(theme, output_dir, count=6):
     downloaded = []  # 临时文件列表
     failed_pids = []
 
-    # 1) 全部下载到临时文件
+    # 1) 全部下载到临时文件（仅保留横向图：1.2 ≤ ratio ≤ 2.0）
     for i, pid in enumerate(candidates):
         if len(downloaded) >= count:
             break
         tmp_path = os.path.join(output_dir, f"_tmp_{theme}_{i}_{pid}.jpg")
         if download_pexels_image(pid, tmp_path):
-            downloaded.append(tmp_path)
+            if is_valid_landscape(tmp_path):
+                downloaded.append(tmp_path)
+            else:
+                # 不是横向图或纯色图，丢弃
+                try:
+                    img = Image.open(tmp_path)
+                    w, h = img.size
+                    ratio = w / h if h > 0 else 0
+                    print(f"  跳过 {pid}（{w}x{h}，比例 {ratio:.2f} 不符合横向规范）")
+                except Exception:
+                    print(f"  跳过 {pid}（无法校验）")
+                os.remove(tmp_path)
         else:
             failed_pids.append(pid)
 
